@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ウイスキーのたまご 育成日記</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #fff9ec;
+    --line: #cfe4f7;
+    --ink: #4a3f2f;
+    --red: #ef6a5a;
+    --orange: #f0983d;
+    --yellow: #f2c14e;
+    --green: #6fb56a;
+    --blue: #57a4d6;
+    --purple: #a982c9;
+    --card: #ffffff;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    background-image:
+      repeating-linear-gradient(var(--paper), var(--paper) 33px, var(--line) 34px);
+    color:var(--ink);
+    font-family:'Kosugi Maru', sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{
+    max-width:640px;
+    margin:0 auto;
+    min-height:100vh;
+    position:relative;
+  }
+
+  /* ---------- Header ---------- */
+  header.hero{
+    padding:34px 24px 26px;
+    text-align:center;
+    position:relative;
+  }
+  .sun{
+    position:absolute;
+    top:18px; right:22px;
+    font-size:34px;
+    transform:rotate(8deg);
+  }
+  .cloud{
+    position:absolute;
+    top:26px; left:18px;
+    font-size:26px;
+    opacity:.8;
+  }
+  h1{
+    font-family:'Kosugi Maru', sans-serif;
+    font-weight:400;
+    font-size:28px;
+    line-height:1.5;
+    margin:0 0 10px;
+    color:var(--red);
+    text-shadow:
+      2px 2px 0 var(--yellow);
+    letter-spacing:.02em;
+  }
+  .hero-desc{
+    font-size:14.5px;
+    line-height:1.9;
+    color:var(--ink);
+    max-width:38ch;
+    margin:0 auto;
+  }
+  .hero-desc .egg{ font-size:16px; }
+
+  /* ---------- Timeline (list view) ---------- */
+  .timeline{
+    padding:10px 20px 60px;
+    position:relative;
+  }
+  .toolbar{
+    display:flex;
+    gap:12px;
+    padding:2px 24px 4px;
+    justify-content:center;
+  }
+  .tool-btn{
+    flex:1;
+    max-width:220px;
+    padding:11px 14px;
+    background:#fff;
+    border:2.5px solid var(--ink);
+    border-radius:30px;
+    font-family:'Kosugi Maru', sans-serif;
+    font-size:13.5px;
+    color:var(--ink);
+    cursor:pointer;
+    box-shadow:2px 2px 0 rgba(74,63,47,0.15);
+  }
+  .tool-btn:active{ transform:translate(1px,1px); box-shadow:none; }
+  .toast{
+    text-align:center;
+    font-size:12.5px;
+    min-height:18px;
+    margin:8px 24px 0;
+    color:var(--green);
+    font-family:'Kosugi Maru', sans-serif;
+  }
+  .toast.error{ color:#c1483a; }
+  .stage{
+    display:flex;
+    gap:14px;
+    position:relative;
+    margin-bottom:26px;
+    cursor:pointer;
+    align-items:center;
+  }
+  .stage:nth-child(1) .stage-mark{ background:var(--red); }
+  .stage:nth-child(2) .stage-mark{ background:var(--orange); }
+  .stage:nth-child(3) .stage-mark{ background:var(--yellow); }
+  .stage:nth-child(4) .stage-mark{ background:var(--green); }
+  .stage:nth-child(5) .stage-mark{ background:var(--blue); }
+  .stage:nth-child(6) .stage-mark{ background:var(--purple); }
+
+  .stage-mark{
+    flex:0 0 auto;
+    width:58px;
+    height:58px;
+    border-radius:50% 48% 52% 50% / 52% 48% 52% 48%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Kosugi Maru', sans-serif;
+    font-size:12px;
+    text-align:center;
+    line-height:1.3;
+    color:#fff;
+    border:3px solid #fff;
+    box-shadow:0 0 0 2px currentColor;
+    opacity:.55;
+    transform:rotate(-3deg);
+  }
+  .stage.done .stage-mark{
+    opacity:1;
+  }
+  .stage-card{
+    flex:1;
+    min-width:0;
+    background:var(--card);
+    border:3px solid var(--ink);
+    border-radius:16px 18px 15px 20px / 18px 15px 20px 16px;
+    padding:12px 16px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    min-height:76px;
+    box-shadow:4px 4px 0 rgba(74,63,47,0.15);
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .stage-card:hover{
+    transform:translate(-2px,-2px);
+    box-shadow:6px 6px 0 rgba(74,63,47,0.18);
+  }
+  .stage.empty .stage-card{
+    border-style:dashed;
+    background:transparent;
+    box-shadow:none;
+  }
+  .stage-thumb{
+    width:56px;
+    height:56px;
+    border-radius:10px;
+    object-fit:cover;
+    flex:0 0 auto;
+    border:2px solid var(--ink);
+    transform:rotate(-2deg);
+  }
+  .stage-thumb-empty{
+    width:56px;
+    height:56px;
+    border-radius:10px;
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:26px;
+    border:2px dashed #c9bda8;
+  }
+  .stage-body{ flex:1; min-width:0; }
+  .stage-label{
+    font-family:'Kosugi Maru', sans-serif;
+    font-size:15px;
+    margin:0 0 4px;
+    color:var(--ink);
+  }
+  .stage-sub{
+    font-size:12.5px;
+    color:#8a7c67;
+    margin:0;
+    line-height:1.5;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+    white-space:pre-line;
+    word-break:break-word;
+  }
+  .stage-cta{
+    font-size:12.5px;
+    color:var(--red);
+    white-space:nowrap;
+    font-family:'Kosugi Maru', sans-serif;
+  }
+
+  /* ---------- Overlay screens (form / detail) ---------- */
+  .screen{
+    position:fixed;
+    inset:0;
+    background:var(--paper);
+    background-image:
+      repeating-linear-gradient(var(--paper), var(--paper) 33px, var(--line) 34px);
+    z-index:20;
+    overflow-y:auto;
+    display:none;
+  }
+  .screen.active{ display:block; }
+  .screen-inner{
+    max-width:640px;
+    margin:0 auto;
+    padding:0 0 50px;
+  }
+  .screen-top{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:18px 22px;
+    border-bottom:3px dashed #d8cdb6;
+    background:var(--paper);
+    position:sticky;
+    top:0;
+    z-index:2;
+  }
+  .back-btn{
+    background:#fff;
+    border:2.5px solid var(--ink);
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    font-size:16px;
+    color:var(--ink);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex:0 0 auto;
+    box-shadow:2px 2px 0 rgba(74,63,47,0.2);
+  }
+  .back-btn:active{ transform:translate(1px,1px); box-shadow:none; }
+  .screen-top h2{
+    font-family:'Kosugi Maru', sans-serif;
+    font-size:19px;
+    margin:0;
+    color:var(--ink);
+    font-weight:400;
+  }
+
+  /* form */
+  .form-body{ padding:22px 22px 10px; }
+  .field-label{
+    font-family:'Kosugi Maru', sans-serif;
+    font-size:13.5px;
+    color:var(--ink);
+    margin:0 0 8px;
+  }
+  .field-label::before{ content:"✏️ "; }
+  .upload-box{
+    width:100%;
+    aspect-ratio:4/3;
+    border:3px dashed var(--blue);
+    border-radius:20px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    cursor:pointer;
+    background:#fff;
+    color:#8a7c67;
+    overflow:hidden;
+    position:relative;
+    margin-bottom:22px;
+  }
+  .upload-box img{
+    width:100%; height:100%; object-fit:cover;
+  }
+  .upload-box .upload-hint{
+    font-size:14px;
+    font-family:'Kosugi Maru', sans-serif;
+  }
+  .upload-box .upload-icon{ font-size:34px; }
+  .upload-box input[type=file]{ display:none; }
+  .upload-replace{
+    position:absolute;
+    bottom:10px; right:10px;
+    background:rgba(74,63,47,0.75);
+    color:#fff;
+    font-size:12px;
+    padding:6px 12px;
+    border-radius:20px;
+    font-family:'Kosugi Maru', sans-serif;
+  }
+  textarea{
+    width:100%;
+    min-height:130px;
+    resize:vertical;
+    border:3px solid var(--ink);
+    border-radius:14px;
+    background:#fff;
+    padding:14px 16px;
+    font-family:'Kosugi Maru', sans-serif;
+    font-size:15px;
+    color:var(--ink);
+    line-height:1.9;
+    margin-bottom:24px;
+  }
+  textarea:focus, .upload-box:focus-visible{
+    outline:3px solid var(--yellow);
+    outline-offset:1px;
+  }
+  .primary-btn{
+    width:100%;
+    padding:16px;
+    background:var(--red);
+    color:#fff;
+    border:3px solid var(--ink);
+    border-radius:40px;
+    font-size:16px;
+    font-family:'Kosugi Maru', sans-serif;
+    cursor:pointer;
+    box-shadow:3px 3px 0 rgba(74,63,47,0.25);
+  }
+  .primary-btn:active:not(:disabled){ transform:translate(2px,2px); box-shadow:none; }
+  .primary-btn:disabled{
+    background:#e3dbc9;
+    color:#a99;
+    border-color:#d8cdb6;
+    box-shadow:none;
+    cursor:not-allowed;
+  }
+  .form-error{
+    color:#c1483a;
+    font-size:13px;
+    margin:-14px 0 18px;
+    display:none;
+    font-family:'Kosugi Maru', sans-serif;
+  }
+  .form-error::before{ content:"😣 "; }
+
+  /* detail */
+  .detail-photo-wrap{
+    position:relative;
+    margin:20px 22px 0;
+  }
+  .detail-photo{
+    width:100%;
+    aspect-ratio:4/3;
+    object-fit:cover;
+    display:block;
+    border:3px solid var(--ink);
+    border-radius:18px;
+    box-shadow:4px 4px 0 rgba(74,63,47,0.18);
+  }
+  .photo-nav{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    background:#fff;
+    border:2.5px solid var(--ink);
+    font-size:20px;
+    line-height:1;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    box-shadow:2px 2px 0 rgba(74,63,47,0.22);
+  }
+  .photo-nav:active:not(:disabled){ transform:translateY(-50%) translate(1px,1px); box-shadow:none; }
+  .photo-nav.prev{ left:12px; }
+  .photo-nav.next{ right:12px; }
+  .photo-nav:disabled{
+    opacity:.35;
+    cursor:not-allowed;
+  }
+  .detail-body{ padding:22px 24px 10px; }
+  .detail-date{
+    font-size:12.5px;
+    color:#8a7c67;
+    margin:0 0 14px;
+    font-family:'Kosugi Maru', sans-serif;
+  }
+  .detail-memo{
+    font-size:15.5px;
+    line-height:2.1;
+    white-space:pre-wrap;
+    margin:0 0 30px;
+    color:var(--ink);
+    background:#fff;
+    border:2.5px dashed #d8cdb6;
+    border-radius:14px;
+    padding:16px 18px;
+  }
+  .detail-memo:empty::before{
+    content:"まだ なにも かいてないよ。";
+    color:#a99;
+  }
+  .edit-btn{
+    width:100%;
+    padding:15px;
+    background:#fff;
+    border:3px solid var(--blue);
+    color:var(--blue);
+    border-radius:40px;
+    font-size:15px;
+    font-family:'Kosugi Maru', sans-serif;
+    cursor:pointer;
+  }
+  .edit-btn:active{ transform:translate(1px,1px); }
+
+  .footnote{
+    text-align:center;
+    font-size:12px;
+    color:#a99b83;
+    padding:0 24px 40px;
+  }
+
+  /* ---------- Mobile ---------- */
+  html{ -webkit-text-size-adjust:100%; }
+  *{ -webkit-tap-highlight-color:transparent; }
+  textarea{ font-size:16px; }               /* iPhoneで入力時に勝手に拡大されないように */
+  .back-btn{ width:44px; height:44px; }
+  .photo-nav{ width:44px; height:44px; }
+  .screen-top{ padding-top:calc(18px + env(safe-area-inset-top, 0px)); }
+  .screen-inner{ padding-bottom:calc(50px + env(safe-area-inset-bottom, 0px)); }
+  .footnote{ padding-bottom:calc(40px + env(safe-area-inset-bottom, 0px)); }
+  .detail-photo{ touch-action:pan-y; }
+  @media (max-width:420px){
+    h1{ font-size:24px; }
+    .hero-desc{ font-size:13.5px; }
+    .timeline{ padding:10px 14px 50px; }
+    .toolbar{ padding:2px 14px 4px; }
+    .stage{ gap:10px; }
+    .stage-mark{ width:52px; height:52px; font-size:11px; }
+    .stage-card{ padding:10px 12px; gap:10px; }
+    .stage-thumb, .stage-thumb-empty{ width:50px; height:50px; }
+    .form-body{ padding:20px 16px 10px; }
+    .detail-photo-wrap{ margin:16px 16px 0; }
+    .detail-body{ padding:20px 18px 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="hero">
+    <span class="cloud">☁️</span>
+    <span class="sun">☀️</span>
+    <h1>ウイスキーのたまご<br>育成日記</h1>
+    <p class="hero-desc"><span class="egg">🥚</span> うまれたばかりのおさけが、すこしずつおおきくなっていくようすをきろくするよ！</p>
+  </header>
+
+  <div class="toolbar">
+    <button class="tool-btn" id="exportBtn">📤 書き出す</button>
+    <button class="tool-btn" id="importBtn">📥 読み込む</button>
+    <input type="file" accept=".json,application/json" id="importFileInput" style="display:none">
+  </div>
+  <p class="toast" id="toast"></p>
+
+  <main class="timeline" id="listView">
+    <div id="stageList"></div>
+  </main>
+
+  <p class="footnote">きろくは このブラウザだけに ほぞんされます。<br>ほかのPCでも みたいときは 上の「書き出す/読み込む」を つかってね。</p>
+
+  <!-- Form screen (upload / edit) -->
+  <section class="screen" id="formScreen">
+    <div class="screen-inner">
+      <div class="screen-top">
+        <button class="back-btn" id="formBack" aria-label="もどる">←</button>
+        <h2 id="formTitle">きろくする</h2>
+      </div>
+      <div class="form-body">
+        <p class="field-label">しゃしんをえらぶ</p>
+        <label class="upload-box" id="uploadBox">
+          <span class="upload-icon">🥚</span>
+          <span class="upload-hint">タップして しゃしんを えらんでね</span>
+          <input type="file" accept="image/*" id="fileInput">
+        </label>
+        <p class="form-error" id="formError">しゃしんを えらんでね。</p>
+        <p class="field-label">きょうの メモ（じゆうに かいてね）</p>
+        <textarea id="memoInput" placeholder="いろ、におい、たるの ようすなど、きづいたことを かいてみよう"></textarea>
+        <button class="primary-btn" id="confirmBtn" disabled>これで きめる！</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Detail screen -->
+  <section class="screen" id="detailScreen">
+    <div class="screen-inner">
+      <div class="screen-top">
+        <button class="back-btn" id="detailBack" aria-label="もどる">←</button>
+        <h2 id="detailTitle">1日目</h2>
+      </div>
+      <div class="detail-photo-wrap">
+        <button class="photo-nav prev" id="prevBtn" aria-label="前の日記">‹</button>
+        <img class="detail-photo" id="detailPhoto" alt="">
+        <button class="photo-nav next" id="nextBtn" aria-label="次の日記">›</button>
+      </div>
+      <div class="detail-body">
+        <p class="detail-date" id="detailDate"></p>
+        <p class="detail-memo" id="detailMemo"></p>
+        <button class="edit-btn" id="detailEditBtn">✏️ なおす</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const STAGES = [
+  {id:'day1',   label:'1日目',  sub:'はじまりの日'},
+  {id:'week1',  label:'1週間',  sub:''},
+  {id:'month1', label:'1か月',  sub:''},
+  {id:'month3', label:'3か月',  sub:''},
+  {id:'month6', label:'6か月',  sub:''},
+  {id:'year1',  label:'1年',    sub:''},
+];
+
+let entries = {};      // stageId -> {image, memo, date}
+let currentStage = null;
+let currentImage = null; // holds base64 during form editing
+let isEditing = false;
+
+const stageListEl = document.getElementById('stageList');
+const listView = document.getElementById('listView');
+const formScreen = document.getElementById('formScreen');
+const detailScreen = document.getElementById('detailScreen');
+
+const uploadBox = document.getElementById('uploadBox');
+const fileInput = document.getElementById('fileInput');
+const memoInput = document.getElementById('memoInput');
+const confirmBtn = document.getElementById('confirmBtn');
+const formTitle = document.getElementById('formTitle');
+const formError = document.getElementById('formError');
+
+const detailTitle = document.getElementById('detailTitle');
+const detailPhoto = document.getElementById('detailPhoto');
+const detailDate = document.getElementById('detailDate');
+const detailMemo = document.getElementById('detailMemo');
+const detailEditBtn = document.getElementById('detailEditBtn');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+
+function stageInfo(id){ return STAGES.find(s => s.id === id); }
+
+function fmtDate(iso){
+  const d = new Date(iso);
+  return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 きろく`;
+}
+
+// ---------- Storage (ブラウザのlocalStorageに保存。この端末・このブラウザにだけ残ります) ----------
+const STORAGE_PREFIX = 'whiskyEggDiary:entries:';
+
+async function loadAll(){
+  for(const s of STAGES){
+    const raw = localStorage.getItem(STORAGE_PREFIX + s.id);
+    if(raw){
+      try{
+        entries[s.id] = JSON.parse(raw);
+      }catch(e){
+        // 壊れたデータは無視する
+      }
+    }
+  }
+}
+
+async function saveEntry(stageId, data){
+  localStorage.setItem(STORAGE_PREFIX + stageId, JSON.stringify(data));
+  entries[stageId] = data;
+}
+
+// ---------- Export / Import ----------
+let toastTimer = null;
+function showToast(msg, isError){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.toggle('error', !!isError);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.textContent = ''; }, 4500);
+}
+
+function exportData(){
+  const hasAny = STAGES.some(s => entries[s.id]);
+  if(!hasAny){
+    showToast('まだ きろくが ないよ。さきに しゃしんを ほぞんしてね。', true);
+    return;
+  }
+  const payload = {
+    app: 'whisky-egg-diary',
+    exportedAt: new Date().toISOString(),
+    entries
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const stamp = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `whisky-egg-diary-${stamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('きろくを 書き出したよ。共有フォルダに おいてね。');
+}
+
+async function handleImportFile(e){
+  const file = e.target.files[0];
+  e.target.value = '';
+  if(!file) return;
+  try{
+    const text = await file.text();
+    const data = JSON.parse(text);
+    const incoming = (data && typeof data === 'object' && data.entries) ? data.entries : data;
+    if(!incoming || typeof incoming !== 'object') throw new Error('invalid format');
+    let count = 0;
+    STAGES.forEach(s => {
+      const e2 = incoming[s.id];
+      if(e2 && e2.image){
+        const record = { image: e2.image, memo: e2.memo || '', date: e2.date || new Date().toISOString() };
+        entries[s.id] = record;
+        localStorage.setItem(STORAGE_PREFIX + s.id, JSON.stringify(record));
+        count++;
+      }
+    });
+    renderList();
+    if(count > 0){
+      showToast(`${count}件の きろくを 読み込んだよ。`);
+    }else{
+      showToast('よみこめる きろくが 見つからなかったよ。', true);
+    }
+  }catch(err){
+    showToast('ファイルの 読み込みに しっぱいしたよ。「書き出す」で作った ファイルを えらんでね。', true);
+  }
+}
+
+document.getElementById('exportBtn').addEventListener('click', exportData);
+document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFileInput').click());
+document.getElementById('importFileInput').addEventListener('change', handleImportFile);
+
+// ---------- Render list ----------
+function renderList(){
+  stageListEl.innerHTML = '';
+  STAGES.forEach(s => {
+    const entry = entries[s.id];
+    const div = document.createElement('div');
+    div.className = 'stage ' + (entry ? 'done' : 'empty');
+    div.innerHTML = `
+      <div class="stage-mark">${s.label}</div>
+      <div class="stage-card">
+        ${entry
+          ? `<img class="stage-thumb" src="${entry.image}" alt="${s.label}の写真">`
+          : `<div class="stage-thumb-empty">🥚</div>`}
+        <div class="stage-body">
+          <p class="stage-label">${s.label}${s.sub ? ' ・ ' + s.sub : ''}</p>
+          <p class="stage-sub">${entry ? (entry.memo ? entry.memo : fmtDate(entry.date)) : 'まだ きろくしてないよ'}</p>
+        </div>
+        ${entry ? '' : '<span class="stage-cta">きろくする</span>'}
+      </div>
+    `;
+    div.addEventListener('click', () => {
+      if(entry){ openDetail(s.id); }
+      else{ openForm(s.id, false); }
+    });
+    stageListEl.appendChild(div);
+  });
+}
+
+// ---------- Navigation ----------
+function showScreen(el){
+  formScreen.classList.remove('active');
+  detailScreen.classList.remove('active');
+  if(el) el.classList.add('active');
+  window.scrollTo(0,0);
+  if(el) el.scrollTop = 0;
+}
+
+function goList(){
+  currentStage = null;
+  currentImage = null;
+  showScreen(null);
+  renderList();
+}
+
+// ---------- Form (upload / edit) ----------
+function openForm(stageId, editing){
+  currentStage = stageId;
+  isEditing = editing;
+  const s = stageInfo(stageId);
+  const entry = entries[stageId];
+
+  formTitle.textContent = editing ? `${s.label}を なおす` : `${s.label}を きろく`;
+  currentImage = entry ? entry.image : null;
+  memoInput.value = entry ? (entry.memo || '') : '';
+  formError.style.display = 'none';
+  renderUploadBox();
+  updateConfirmState();
+  showScreen(formScreen);
+}
+
+function renderUploadBox(){
+  if(currentImage){
+    uploadBox.innerHTML = `<img src="${currentImage}" alt="えらんだ しゃしん"><span class="upload-replace">しゃしんを かえる</span><input type="file" accept="image/*" id="fileInput">`;
+  }else{
+    uploadBox.innerHTML = `<span class="upload-icon">🥚</span><span class="upload-hint">タップして しゃしんを えらんでね</span><input type="file" accept="image/*" id="fileInput">`;
+  }
+  document.getElementById('fileInput').addEventListener('change', handleFile);
+}
+
+function updateConfirmState(){
+  confirmBtn.disabled = !currentImage;
+}
+
+function resizeImage(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const maxDim = 1000;
+        let {width, height} = img;
+        if(width > maxDim || height > maxDim){
+          if(width > height){
+            height = Math.round(height * maxDim / width);
+            width = maxDim;
+          }else{
+            width = Math.round(width * maxDim / height);
+            height = maxDim;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', 0.78));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleFile(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  try{
+    currentImage = await resizeImage(file);
+    formError.style.display = 'none';
+    renderUploadBox();
+    updateConfirmState();
+  }catch(err){
+    formError.textContent = 'しゃしんが よみこめなかったよ。もういちど ためしてね。';
+    formError.style.display = 'block';
+  }
+}
+
+document.getElementById('formBack').addEventListener('click', () => {
+  if(isEditing){ openDetail(currentStage); }
+  else{ goList(); }
+});
+
+confirmBtn.addEventListener('click', async () => {
+  if(!currentImage){
+    formError.textContent = 'しゃしんを えらんでね。';
+    formError.style.display = 'block';
+    return;
+  }
+  confirmBtn.disabled = true;
+  confirmBtn.textContent = 'ほぞんちゅう…';
+  const data = {
+    image: currentImage,
+    memo: memoInput.value.trim(),
+    date: (entries[currentStage] && isEditing) ? entries[currentStage].date : new Date().toISOString()
+  };
+  try{
+    await saveEntry(currentStage, data);
+    confirmBtn.textContent = 'これで きめる！';
+    goList();
+  }catch(err){
+    formError.textContent = 'ほぞんに しっぱいしたよ。ブラウザの ほぞんようりょうが いっぱいかもしれません。べつの しゃしんで もういちど ためしてね。';
+    formError.style.display = 'block';
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = 'これで きめる！';
+  }
+});
+
+// ---------- Detail ----------
+function recordedStageIds(){
+  return STAGES.filter(s => entries[s.id]).map(s => s.id);
+}
+
+function openDetail(stageId){
+  currentStage = stageId;
+  const s = stageInfo(stageId);
+  const entry = entries[stageId];
+  detailTitle.textContent = s.label;
+  detailPhoto.src = entry.image;
+  detailPhoto.alt = s.label + 'の写真';
+  detailDate.textContent = fmtDate(entry.date);
+  detailMemo.textContent = entry.memo || '';
+
+  const ids = recordedStageIds();
+  const idx = ids.indexOf(stageId);
+  prevBtn.disabled = idx <= 0;
+  nextBtn.disabled = idx === -1 || idx >= ids.length - 1;
+
+  showScreen(detailScreen);
+}
+
+prevBtn.addEventListener('click', () => {
+  const ids = recordedStageIds();
+  const idx = ids.indexOf(currentStage);
+  if(idx > 0) openDetail(ids[idx - 1]);
+});
+
+nextBtn.addEventListener('click', () => {
+  const ids = recordedStageIds();
+  const idx = ids.indexOf(currentStage);
+  if(idx !== -1 && idx < ids.length - 1) openDetail(ids[idx + 1]);
+});
+
+
+// スワイプ(左右になぞる)でも前後の日記へ移動
+(function(){
+  let startX = 0, startY = 0;
+  detailScreen.addEventListener('touchstart', e => {
+    startX = e.changedTouches[0].clientX;
+    startY = e.changedTouches[0].clientY;
+  }, {passive:true});
+  detailScreen.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    if(Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    if(dx < 0 && !nextBtn.disabled) nextBtn.click();
+    if(dx > 0 && !prevBtn.disabled) prevBtn.click();
+  }, {passive:true});
+})();
+
+document.getElementById('detailBack').addEventListener('click', goList);
+detailEditBtn.addEventListener('click', () => openForm(currentStage, true));
+
+// ---------- Init ----------
+(async function init(){
+  stageListEl.innerHTML = '<p style="padding:20px 0;color:#a99b83;font-size:13px;">よみこみちゅう…</p>';
+  try{
+    await loadAll();
+  }catch(e){
+    console.error('load error', e);
+  }
+  renderList();
+})();
+</script>
+</body>
+</html>
